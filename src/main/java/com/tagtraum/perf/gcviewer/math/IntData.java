@@ -72,6 +72,11 @@ public class IntData implements Serializable  {
         sum = 0;
         sumSquares = 0;
         n = 0;
+        
+        // jlittle@ptc.com
+        // Also reset the minimum / maximum values
+        min = Integer.MAX_VALUE;
+        max = Integer.MIN_VALUE;
     }
 
     public static long weightedAverage(long[] n, int[] weight) {

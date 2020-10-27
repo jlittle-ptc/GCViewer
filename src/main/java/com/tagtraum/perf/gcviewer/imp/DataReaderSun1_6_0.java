@@ -633,19 +633,23 @@ public class DataReaderSun1_6_0 extends AbstractDataReaderSun {
             ae.setDateStamp(datestamp);
             ae.setTimestamp(timestamp);
             ae.setExtendedType(type);
+            
             // now add detail gcevents, should they exist
             if (ae instanceof GCEvent) {
                 parseDetailEventsIfExist(line, pos, (GCEvent) ae);
             }
+            
             if (type.getPattern() == GcPattern.GC_MEMORY_PAUSE
                 || type.getPattern() == GcPattern.GC_MEMORY) {
 
                 setMemory(ae, line, pos);
             }
+            
             // then more detail events follow (perm gen is usually here)
             if (ae instanceof GCEvent) {
                 parseDetailEventsIfExist(line, pos, (GCEvent)ae);
             }
+            
             if (type.getPattern() == GcPattern.GC_MEMORY_PAUSE
                     || type.getPattern() == GcPattern.GC_PAUSE) {
 
@@ -661,6 +665,10 @@ public class DataReaderSun1_6_0 extends AbstractDataReaderSun {
                 ((ConcurrentGCEvent) ae).setDuration(NumberParser.parseDouble(line.substring(start, end)));
             }
 
+            // jlittle@ptc.com (2020-10-21)
+            // Parse detailed times if present
+    		parseDetailedTimes(line, pos, ae);
+            
             return ae;
         }
         catch (RuntimeException | UnknownGcTypeException e) {

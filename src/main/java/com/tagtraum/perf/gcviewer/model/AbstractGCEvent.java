@@ -35,6 +35,13 @@ public abstract class AbstractGCEvent<T extends AbstractGCEvent<T>> implements S
     protected Generation generation;
     protected List<T> details;
     private double pause;
+    
+    // jlittle@ptc.com - (2020-10-21)
+    // Adding instance variables for detailed time.
+    private double userTime = -1;
+    private double systemTime = -1;
+    private double realTime = -1;
+    
     private int number = -1;
     private List<AbstractGCEvent<?>> phases;
 
@@ -333,6 +340,86 @@ public abstract class AbstractGCEvent<T extends AbstractGCEvent<T>> implements S
         this.pause = pause;
     }
 
+    /**
+     * Sets the value of the user time metric on the GC Event.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @param value 
+     *        New User time value to set in seconds
+     */
+    public void setUserTime(double value) {
+    	this.userTime = value;
+    }
+    
+    /**
+     * Sets the value of the system time metric on the GC Event.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @param value 
+     *        New system time value to set in seconds
+     */
+    public void setSystemTime(double value) {
+    	this.systemTime = value;
+    }
+
+    /**
+     * Sets the value of the real time metric on the GC Event.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @param value 
+     *        New value for the Real time metric to set in seconds.
+     */
+    public void setRealTime(double value) {
+    	this.realTime = value;
+    }
+
+    /**
+     * Retrieves the value of user time metric for the GC event, if available.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return User time value for this GC Event in seconds or -1 if unset.
+     */
+    public double getUserTime() {
+    	return this.userTime;
+    }
+
+    /**
+     * Retrieves the value of the System time metric for the GC event, if available.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return System time value for this GC Event in seconds or -1 if unset.
+     */
+    public double getSystemTime() {
+    	return this.systemTime;
+    }
+
+    /**
+     * Retrieves the value of the Real time metric for the GC event, if available.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Real time value for this GC Event in seconds or -1 if unset.
+     */
+    public double getRealTime() {
+    	return this.realTime;
+    }
+    
+    /**
+     * Check to see if the GC Event has detailed time metrics available.
+     * 
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Returns true if GCEvent has full set of detailed time data, false otherwise.
+     */
+    public boolean hasDetailedTime() {
+    	return this.userTime >= 0 && this.systemTime >= 0 && this.realTime >= 0;
+    }
+        
     @Override
     public boolean equals(Object o) {
         if (this == o)
