@@ -70,6 +70,11 @@ public class DoubleData implements Serializable {
         sum = 0;
         sumSquares = 0;
         n = 0;
+        
+        // jlittle@ptc.com (2020-10-21)
+        // Also reset the minimum / maximum values.
+        min = Double.MAX_VALUE;
+        max = Double.MIN_VALUE;
     }
 
     public static double average(double[] n) {

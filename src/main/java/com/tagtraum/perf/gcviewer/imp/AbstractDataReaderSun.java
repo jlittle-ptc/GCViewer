@@ -10,6 +10,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.tagtraum.perf.gcviewer.model.AbstractGCEvent;
 import com.tagtraum.perf.gcviewer.model.AbstractGCEvent.ExtendedType;
@@ -235,7 +237,7 @@ public abstract class AbstractDataReaderSun extends AbstractDataReader {
 
         // skip "secs]"
         pos.setIndex(line.indexOf(']', end) + 1);
-
+                
         return pause;
     }
 
@@ -681,4 +683,39 @@ public abstract class AbstractDataReaderSun extends AbstractDataReader {
         parseInfo.setIndex(begin);
     }
 
+    /**
+     * Method to parse the detailed time string from a GC logging line.
+     * 
+     * @author jlittle@ptc.com
+     * 
+     * @param line
+     * @param pos
+     * @param event
+     * 
+     * @return True if detailed time data was successfully parsed f
+     */
+    protected void parseDetailedTimes(String line, ParseInformation pos, AbstractGCEvent<?> event) {
+    	
+    	int begin = 0;
+    	String work = line.substring(begin);
+
+    	if (pos != null)
+    		begin = pos.getIndex();
+    	
+		final Pattern timesCapturePattern = Pattern.compile("\\[Times: user=([\\d\\.,]+) sys=([\\d\\.,]+), real=([\\d\\.,]+) secs\\]");
+
+    	Matcher timeMatcher  = timesCapturePattern.matcher(work);
+    	
+    	if (timeMatcher.find()) {
+    	    if (timeMatcher.groupCount() == 3) {
+				event.setUserTime(Double.parseDouble(timeMatcher.group(1).replace(",", ".")));
+				event.setSystemTime(Double.parseDouble(timeMatcher.group(2).replace(",", ".")));
+				event.setRealTime(Double.parseDouble(timeMatcher.group(3).replace(",", ".")));
+    	    } 
+    	}
+    	
+    	if (pos != null)
+    		pos.setIndex(line.indexOf(']', begin) + 1);    	
+    }
+        
 }

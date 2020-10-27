@@ -96,6 +96,15 @@ public class GCModel implements Serializable {
     private RegressionLine relativePostFullGCIncrease;
     private URL url;
 
+    // jlittle@ptc.com - (2020-10-21)
+    // Additional Metrics for Detailed GC Times 
+    private DoubleData userTimeByGC;
+    private DoubleData systemTimeByGC;
+    private DoubleData realTimeByGC;
+    private DoubleData userTimeByFullGC;
+    private DoubleData systemTimeByFullGC;
+    private DoubleData realTimeByFullGC;
+    
     /**
      * Contains information about a file.
      *
@@ -231,6 +240,15 @@ public class GCModel implements Serializable {
         this.postConcurrentCycleUsedHeapSizes = new IntData();
 
         this.promotion = new IntData();
+        
+        // jlittle@ptc.com - (2020-10-21)
+    	// Initialize Detailed GC Metrics 
+    	this.userTimeByGC = new DoubleData();
+    	this.systemTimeByGC = new DoubleData();
+    	this.realTimeByGC = new DoubleData();
+    	this.userTimeByFullGC = new DoubleData();
+    	this.systemTimeByFullGC = new DoubleData();
+    	this.realTimeByFullGC = new DoubleData();
     }
 
     public long getLastModified() {
@@ -484,7 +502,7 @@ public class GCModel implements Serializable {
 
         if (!event.getPhases().isEmpty()) {
             addGcEventPhases(event);
-        }
+        }        
     }
 
     private void addGcEventPause(GCEvent event) {
@@ -498,6 +516,15 @@ public class GCModel implements Serializable {
         currentNoFullGCEvents.add(event);
         currentPostGCSlope.addPoint(event.getTimestamp(), event.getPostUsed());
         currentRelativePostGCIncrease.addPoint(currentRelativePostGCIncrease.getPointCount(), event.getPostUsed());
+        
+        // jlittle@ptc.com - (2020-10-21)
+        // Add detailed time information if necessary.
+        if (event.hasDetailedTime()) {
+        	userTimeByGC.add(event.getUserTime());
+        	systemTimeByGC.add(event.getSystemTime());
+        	realTimeByGC.add(event.getRealTime());
+        }
+        
         gcPause.add(event.getPause());
     }
 
@@ -515,6 +542,15 @@ public class GCModel implements Serializable {
         postFullGCSlope.addPoint(event.getTimestamp(), event.getPostUsed());
         relativePostFullGCIncrease.addPoint(relativePostFullGCIncrease.getPointCount(), event.getPostUsed());
 
+        // jlittle@ptc.com - (2020-10-21)
+        // Add detailed time information if necessary.
+        if (event.hasDetailedTime()) {
+        	userTimeByFullGC.add(event.getUserTime());
+        	systemTimeByFullGC.add(event.getSystemTime());
+        	realTimeByFullGC.add(event.getRealTime());
+        }
+        
+        
         // process no full-gc run data
         if (currentPostGCSlope.hasPoints()) {
             // make sure we have at least _two_ data points
@@ -1050,6 +1086,60 @@ public class GCModel implements Serializable {
             return Optional.empty();
     }
 
+    /**
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Statistical data about User time (CPU time) consumed by Minor GCs.
+     */
+    public DoubleData getUserTimeByGC() {
+    	return this.userTimeByGC;
+    }
+
+    /**
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Statistical data about System time (Kernel time) consumed by Minor GCs.
+     */
+    public DoubleData getSystemTimeByGC() {
+    	return this.systemTimeByGC;
+    }
+
+    /**
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Statistical data about Real time (Clock time) consumed by Minor GCs.
+     */
+    public DoubleData getRealTimeByGC() {
+    	return this.realTimeByGC;
+    }
+
+    /**
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Statistical data about User time (CPU time) consumed by Full GCs.
+     */
+    public DoubleData getUserTimeByFullGC() {
+    	return this.userTimeByFullGC;
+    }
+
+    /**
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Statistical data about System time (Kernel time) consumed by Full GCs.
+     */
+    public DoubleData getSystemTimeByFullGC() {
+    	return this.systemTimeByFullGC;
+    }
+
+    /**
+     * @author jlittle@ptc.com (2020-10-21)
+     * 
+     * @return Statistical data about Real time (Clock time) consumed by Full GCs.
+     */
+    public DoubleData getRealTimeByFullGC() {
+    	return this.realTimeByFullGC;
+    }    
+    
     /**
      * Best effort calculation of this {@link GCModel}s start date based on the available information
      *

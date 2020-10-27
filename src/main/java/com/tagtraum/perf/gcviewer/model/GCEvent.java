@@ -150,7 +150,7 @@ public class GCEvent extends AbstractGCEvent<GCEvent> {
         sb.append(" [").append(getExtendedType() != null ? getExtendedType().getName() : ExtendedType.UNDEFINED);
         if (details != null) {
             sb.append(' ');
-            for (AbstractGCEvent event : details) {
+            for (AbstractGCEvent<?> event : details) {
                 event.toStringBuffer(sb);
             }
             sb.append(' ');
@@ -166,6 +166,17 @@ public class GCEvent extends AbstractGCEvent<GCEvent> {
         sb.append("K), ");
         sb.append(getPause());
         sb.append(" secs]");
+        
+        // jlittle@ptc.com (2020-10-21)
+        // Add detailed time information back into string output.
+        if (getUserTime() > 0 || getSystemTime() > 0) {
+        	sb.append(" [Times:");
+        	sb.append(" user=").append(getUserTime());
+        	sb.append(" sys=").append(getSystemTime()).append(",");
+        	sb.append(" real=").append(getUserTime());
+        	sb.append(" secs]");
+        }
+        
     }
 
     @Override

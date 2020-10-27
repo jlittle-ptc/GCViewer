@@ -332,6 +332,15 @@ public class DataReaderSun1_6_0G1 extends AbstractDataReaderSun {
                                 line = in.readLine();
                                 if (line != null && line.trim().startsWith("[Eden")) {
                                     parseMemoryDetails(fullGcEvent, line, parsePosition);
+
+                                    // jlittle@ptc.com (2020-10-21)
+                                    // Read the next line which likely will have time info.
+                                    line = in.readLine();                                    
+                                }
+                                
+                                if (line != null && line.trim().startsWith("[Times")) {
+                                    // parse times
+                                    parseDetailedTimes(line, null, fullGcEvent);
                                 }
                                 else {
                                     // push last read line back into stream - it is the next event to be parsed
@@ -454,7 +463,9 @@ public class DataReaderSun1_6_0G1 extends AbstractDataReaderSun {
             }
 
             if (line.indexOf(TIMES) >= 0) {
-                // detailed gc description ends with " [Times: user=...]" -> stop reading lines
+            	// jlittle@ptc.com (2020-10-21)
+                // detailed gc description ends with " [Times: user=...]" -> Parse Detailed times
+            	parseDetailedTimes(line, pos, event);
                 isInDetailedEvent = false;
                 hasTimes = true;
             }
