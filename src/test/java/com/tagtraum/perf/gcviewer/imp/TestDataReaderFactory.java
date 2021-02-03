@@ -314,12 +314,43 @@ public class TestDataReaderFactory {
     }
 
     @Test
+    public void testOpenJdk8DockerMemory512mCpus0_5() throws IOException {
+        // Using an OpenJdk8 docker image and letting the JVM decide on the algorithm (--memory=512m --cpus="0.5")
+        DataReaderFactory factory = new DataReaderFactory();
+        DataReader dr = factory.getDataReader(new GcResourceFile("byteArray"), new ByteArrayInputStream(("OpenJDK 64-Bit Server VM (25.275-b01) for linux-amd64 JRE (1.8.0_275-b01), built on Nov  6 2020 14:10:46 by \"openjdk\" with gcc 4.4.7 20120313 (Red Hat 4.4.7-23)\n" +
+                "Memory: 4k page, physical 524288k(521828k free), swap 1048572k(1048572k free)\n" +
+                "CommandLine flags: -XX:InitialHeapSize=8388608 -XX:MaxHeapSize=134217728 -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedClassPointers -XX:+UseCompressedOops\n").getBytes()));
+        assertDataReader(DataReaderSun1_6_0.class, dr.getClass());
+    }
+
+    @Test
+    public void testOpenJdk8DockerMemory2gCpus2() throws IOException {
+        // Using an OpenJdk8 docker image and letting the JVM decide on the algorithm (--memory=2g --cpus="2")
+        DataReaderFactory factory = new DataReaderFactory();
+        DataReader dr = factory.getDataReader(new GcResourceFile("byteArray"), new ByteArrayInputStream(("OpenJDK 64-Bit Server VM (25.275-b01) for linux-amd64 JRE (1.8.0_275-b01), built on Nov  6 2020 14:10:46 by \"openjdk\" with gcc 4.4.7 20120313 (Red Hat 4.4.7-23)\n" +
+                "Memory: 4k page, physical 2097152k(2094956k free), swap 1048572k(1048572k free)\n" +
+                "CommandLine flags: -XX:InitialHeapSize=33554432 -XX:MaxHeapSize=536870912 -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseParallelGC\n").getBytes()));
+        assertDataReader(DataReaderSun1_6_0.class, dr.getClass());
+    }
+
+    @Test
     public void testOracleG1J8() throws Exception {
         DataReaderFactory factory = new DataReaderFactory();
         DataReader dr = factory.getDataReader(new GcResourceFile("byteArray"), new ByteArrayInputStream(("Java HotSpot(TM) 64-Bit Server VM (25.112-b15) for windows-amd64 JRE (1.8.0_112-b15), built on Sep 22 2016 21:31:56 by \"java_re\" with MS VC++ 10.0 (VS2010)\n" +
                 "Memory: 4k page, physical 50331128k(13997304k free), swap 60569268k(13009848k free)\n" +
                 "CommandLine flags: -XX:CICompilerCount=4 -XX:ConcGCThreads=3 -XX:G1HeapRegionSize=2097152 -XX:GCLogFileSize=1048576 -XX:InitialHeapSize=4294967296 -XX:+ManagementServer -XX:MarkStackSize=4194304 -XX:MaxHeapSize=8589934592 -XX:MaxNewSize=5152702464 -XX:MinHeapDeltaBytes=2097152 -XX:NumberOfGCLogFiles=5 -XX:-OmitStackTraceInFastThrow -XX:+ParallelRefProcEnabled -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ReduceSignalUsage -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseFastUnorderedTimeStamps -XX:+UseG1GC -XX:+UseGCLogFileRotation -XX:-UseLargePagesIndividualAllocation\n" +
                 "2017-12-01T14:14:50.781-0600: 1501608.217: [GC pause (G1 Evacuation Pause) (mixed)\n").getBytes()));
+        assertDataReader(DataReaderSun1_6_0G1.class, dr.getClass());
+    }
+
+    @Test
+    public void testOracleG1J8ApplicationThreadsStopped() throws Exception {
+        // logs with -XX:+PrintGCApplicationStoppedTime often start with a lot of "Total time for which ..." lines
+        DataReaderFactory factory = new DataReaderFactory();
+        DataReader dr = factory.getDataReader(new GcResourceFile("byteArray"), new ByteArrayInputStream(("Java HotSpot(TM) 64-Bit Server VM (25.112-b15) for windows-amd64 JRE (1.8.0_112-b15), built on Sep 22 2016 21:31:56 by \"java_re\" with MS VC++ 10.0 (VS2010)\n" +
+                "Memory: 4k page, physical 50331128k(13997304k free), swap 60569268k(13009848k free)\n" +
+                "CommandLine flags: -XX:CICompilerCount=4 -XX:ConcGCThreads=3 -XX:G1HeapRegionSize=2097152 -XX:GCLogFileSize=1048576 -XX:InitialHeapSize=4294967296 -XX:+ManagementServer -XX:MarkStackSize=4194304 -XX:MaxHeapSize=8589934592 -XX:MaxNewSize=5152702464 -XX:MinHeapDeltaBytes=2097152 -XX:NumberOfGCLogFiles=5 -XX:-OmitStackTraceInFastThrow -XX:+ParallelRefProcEnabled -XX:+PrintGC -XX:+PrintGCDateStamps -XX:+PrintGCDetails -XX:+PrintGCTimeStamps -XX:+PrintTenuringDistribution -XX:+ReduceSignalUsage -XX:+UseCompressedClassPointers -XX:+UseCompressedOops -XX:+UseFastUnorderedTimeStamps -XX:+UseG1GC -XX:+UseGCLogFileRotation -XX:-UseLargePagesIndividualAllocation\n" +
+                "2019-12-15T15:53:20.985+0100: 82113.171: Total time for which application threads were stopped: 0.0019721 seconds, Stopping threads took: 0.0001040 seconds\n\n").getBytes()));
         assertDataReader(DataReaderSun1_6_0G1.class, dr.getClass());
     }
 
